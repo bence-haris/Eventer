@@ -6,10 +6,12 @@ import PIL
 
 lines = []
 sor = []
-with open("firms.txt") as f:
+firms = input("PATH TO COMPANY NAMES: ")
+ids = input("PATH TO ID LIST: ")
+with open(firms) as f:
     lines = f.readlines()
-with open("./ids.txt") as olvas:
-    sor = olvas.readlines()
+with open(ids) as r:
+    sor = r.readlines()
 i = 0
 
 ##############################################################################
@@ -20,22 +22,31 @@ while lines[i] != " ":
     to = "https://www.google.com/search?q="+darab[0]+"+logo+400x400+twitter&tbm=isch"
     #Get request to the URL with the company name
     r = requests.get(to)
-    if "src" in r.text:
-        #Ha a keresesben van "forras":
-        link = r.text.split("src=\"")
-        if "\"" in link[2]:
-            path = link[2].split("\"")
-            path_string = path[0]+".png"
-            print(path[0])
-            r = wget.download(path_string)
+    link = r.text.split("src=\"")
+    if "\"" in link[2]:
+        path = link[2].split("\"")
+        path_string = path[0]+".png"
+        print(path[0])
+        r = wget.download(path_string)
     else:
-        print("Error")
-
+        print("NO IMAGE COULD BE DOWNLOADED")
     azon = sor[i].split("\n")
     full_name = azon[0] + ".png"
     os.rename("./images", "./" + full_name)
     kep = Image.open("./" + full_name)
-    print(kep.height)
     kep = kep.resize((400, 400), PIL.Image.NEAREST)
     kep.save(full_name)
     i = i + 1
+
+ch = input("Want to rename IDs? (y/n)")
+with open(ids, "r") as f:
+    sor = f.read().splitlines()
+if ch == "y":
+    print("Renaming ID list")
+    with open(ids, "w") as f:
+        for line in sor:
+            if line != " ":
+                print(line + ".png", file=f)
+    print("DONE")
+else:
+    print("IDs not renamed")
